@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cheeku Chat — WhatsApp-like UI (HTML+CSS)</title>
+<style>
+  :root{
+    --bg: #0b141a;
+    --panel: #111b21;
+    --panel-2:#202c33;
+    --border: #222e35;
+    --text:#e9edef;
+    --subtext:#8696a0;
+    --accent:#00a884;    /* WhatsApp green */
+    --accent-2:#20c997;
+    --me:#005c4b;        /* my bubble */
+    --them:#1f2c33;      /* their bubble */
+    --badge:#25d366;
+  }
+
+  /* Light mode fallback (if user prefers light) */
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#ece5dd;
+      --panel:#ffffff;
+      --panel-2:#f0f2f5;
+      --border:#e6e6e6;
+      --text:#111b21;
+      --subtext:#667781;
+      --accent:#00a884;
+      --accent-2:#06cf9c;
+      --me:#d9fdd3;
+      --them:#ffffff;
+      --badge:#25d366;
+    }
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  }
+
+  /* App layout */
+  .app{
+    height:100dvh; display:grid; gap:0;
+    grid-template-columns: 360px 1fr;
+    background:linear-gradient(180deg,var(--panel-2) 0 25%, var(--bg) 25% 100%);
+  }
+
+  /* Sidebar (chat list) */
+  .sidebar{
+    border-right:1px solid var(--border);
+    background:var(--panel);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .sb-top{
+    height:60px; display:flex; align-items:center; gap:12px;
+    padding:0 16px; border-bottom:1px solid var(--border); background:var(--panel-2);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px; font-weight:700;
+  }
+  .logo{
+    width:34px; height:34px; border-radius:50%;
+    display:grid; place-items:center; background:var(--accent); color:#fff; font-weight:700;
+  }
+  .sb-actions{ margin-left:auto; display:flex; gap:10px; }
+  .icon-btn{
+    width:34px; height:34px; display:grid; place-items:center;
+    border-radius:50%; border:1px solid var(--border); color:var(--text); background:transparent;
+    cursor:pointer; font-size:18px;
+  }
+  .search{
+    padding:10px; border-bottom:1px solid var(--border); background:var(--panel);
+  }
+  .search input{
+    width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border);
+    background:var(--panel-2); color:var(--text); outline:none;
+  }
+  .chats{ overflow:auto; }
+  .chat-item{
+    display:grid; grid-template-columns: 52px 1fr auto; gap:10px; align-items:center;
+    padding:10px 14px; cursor:pointer; border-bottom:1px solid var(--border);
+  }
+  .chat-item:hover{ background:rgba(255,255,255,.03); }
+  .avatar{
+    width:42px; height:42px; border-radius:50%; display:grid; place-items:center;
+    background:var(--panel-2); border:1px solid var(--border); font-weight:700;
+  }
+  .ci-main{ min-width:0; }
+  .ci-name{ font-weight:600; }
+  .ci-last{ color:var(--subtext); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ci-right{ text-align:right; display:grid; gap:6px; }
+  .time{ color:var(--subtext); font-size:12px; }
+  .badge{
+    display:inline-block; min-width:20px; padding:2px 6px; text-align:center;
+    border-radius:999px; background:var(--badge); color:#041e10; font-weight:700; font-size:12px;
+  }
+
+  /* Chat area */
+  .chat{
+    display:grid; grid-template-rows: 60px 1fr auto;
+    background: url('data:image/svg+xml;utf8,\
+      <svg xmlns="http://www.w3.org/2000/svg" width=\"160\" height=\"160\" viewBox=\"0 0 160 160\" fill=\"none\">\
+        <rect width=\"160\" height=\"160\" fill=\"none\"/>\
+        <circle cx=\"24\" cy=\"24\" r=\"2\" fill=\"%238696A0\" opacity=\"0.15\"/>\
+        <circle cx=\"80\" cy=\"80\" r=\"2\" fill=\"%238696A0\" opacity=\"0.12\"/>\
+        <circle cx=\"136\" cy=\"40\" r=\"2\" fill=\"%238696A0\" opacity=\"0.1\"/>\
+        <circle cx=\"40\" cy=\"120\" r=\"2\" fill=\"%238696A0\" opacity=\"0.08\"/>\
+      </svg>') repeat;
+    background-color: var(--bg);
+  }
+  .chat-top{
+    display:flex; align-items:center; gap:12px; padding:0 16px;
+    border-bottom:1px solid var(--border); background:var(--panel-2);
+  }
+  .ct-name{ font-weight:700; }
+  .ct-sub{ color:var(--subtext); font-size:12px; }
+  .ct-actions{ margin-left:auto; display:flex; gap:10px; }
+  .messages{
+    padding:16px; overflow:auto; display:flex; flex-direction:column; gap:8px;
+  }
+  .msg{
+    max-width:70%;
+    padding:8px 10px; border-radius:10px; position:relative;
+    background:var(--them); color:var(--text);
+  }
+  .msg.me{
+    margin-left:auto; background:var(--me); color:#fff;
+  }
+  .msg .meta{
+    display:flex; gap:6px; align-items:center; color:rgba(255,255,255,.85);
+    font-size:11px; margin-top:4px;
+  }
+  .msg.me .meta{ color:rgba(0,0,0,.55); }
+  .tick{ font-size:12px; }
+  .composer{
+    display:flex; gap:10px; padding:10px; border-top:1px solid var(--border);
+    background:var(--panel-2);
+  }
+  .composer .field{
+    flex:1; display:flex; align-items:center; gap:8px;
+    background:var(--panel); border:1px solid var(--border); border-radius:999px; padding:8px 12px;
+  }
+  .field input{
+    flex:1; border:none; outline:none; background:transparent; color:var(--text);
+  }
+  .send{
+    width:44px; height:44px; border-radius:50%; border:none; cursor:pointer;
+    background:var(--accent); color:#fff; font-size:18px; display:grid; place-items:center;
+  }
+  .send:hover{ filter:brightness(1.05); }
+  .muted{ color:var(--subtext); }
+
+  /* Mobile behavior: slide-in sidebar */
+  #nav-toggle{ display:none; }
+  .mobile-top{
+    display:none;
+    position:absolute; top:10px; left:10px; z-index:4;
+  }
+  .hamburger{
+    width:40px; height:40px; border-radius:10px; border:1px solid var(--border);
+    display:grid; place-items:center; background:var(--panel-2); cursor:pointer;
+  }
+
+  @media (max-width: 980px){
+    .app{ grid-template-columns: 1fr; }
+    .sidebar{
+      position:fixed; inset:0 auto 0 0; width:84%;
+      translate:-100% 0; transition:translate .3s ease; z-index:5;
+      box-shadow: 8px 0 24px rgba(0,0,0,.4);
+    }
+    #nav-toggle:checked ~ .sidebar{ translate:0 0; }
+    #nav-toggle:checked ~ .overlay{ display:block; }
+    .mobile-top{ display:block; }
+    .overlay{
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:3;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Mobile: toggle checkbox for sliding sidebar (CSS only) -->
+<input type="checkbox" id="nav-toggle" />
+
+<div class="app">
+
+  <!-- Mobile hamburger -->
+  <label class="mobile-top hamburger" for="nav-toggle" title="Open chats">
+    ☰
+  </label>
+
+  <!-- Sidebar (chat list) -->
+  <aside class="sidebar">
+    <div class="sb-top">
+      <div class="brand">
+        <div class="logo">C</div>
+        Cheeku Chat
+      </div>
+      <div class="sb-actions">
+        <button class="icon-btn" title="Status">○</button>
+        <button class="icon-btn" title="New chat">＋</button>
+        <button class="icon-btn" title="Menu">⋮</button>
+      </div>
+    </div>
+
+    <div class="search">
+      <input type="text" placeholder="Search or start new chat" />
+    </div>
+
+    <div class="chats">
+      <!-- Sample chat items -->
+      <div class="chat-item">
+        <div class="avatar">AR</div>
+        <div class="ci-main">
+          <div class="ci-name">Anusha</div>
+          <div class="ci-last">Send the design file?</div>
+        </div>
+        <div class="ci-right">
+          <span class="time">10:24</span>
+          <span class="badge">2</span>
+        </div>
+      </div>
+
+      <div class="chat-item">
+        <div class="avatar">HR</div>
