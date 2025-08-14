@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cheeku Chat — WhatsApp-like UI</title>
+<style>
+  :root{
+    --bg: #0b141a;
+    --panel: #111b21;
+    --panel-2:#202c33;
+    --border: #222e35;
+    --text:#e9edef;
+    --subtext:#8696a0;
+    --accent:#00a884;    
+    --me:#005c4b;        
+    --them:#1f2c33;      
+    --badge:#25d366;
+  }
+
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#ece5dd;
+      --panel:#ffffff;
+      --panel-2:#f0f2f5;
+      --border:#e6e6e6;
+      --text:#111b21;
+      --subtext:#667781;
+      --accent:#00a884;
+      --me:#d9fdd3;
+      --them:#ffffff;
+      --badge:#25d366;
+    }
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  }
+
+  .app{
+    height:100vh; display:grid;
+    grid-template-columns: 360px 1fr;
+    background:linear-gradient(180deg,var(--panel-2) 0 25%, var(--bg) 25% 100%);
+  }
+
+  .sidebar{
+    border-right:1px solid var(--border);
+    background:var(--panel);
+    display:flex; flex-direction:column;
+  }
+  .sb-top{
+    height:60px; display:flex; align-items:center; gap:12px;
+    padding:0 16px; border-bottom:1px solid var(--border); background:var(--panel-2);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px; font-weight:700;
+  }
+  .logo{
+    width:34px; height:34px; border-radius:50%;
+    display:grid; place-items:center; background:var(--accent); color:#fff; font-weight:700;
+  }
+  .search{
+    padding:10px; border-bottom:1px solid var(--border); background:var(--panel);
+  }
+  .search input{
+    width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border);
+    background:var(--panel-2); color:var(--text); outline:none;
+  }
+  .chats{ overflow:auto; }
+  .chat-item{
+    display:grid; grid-template-columns: 52px 1fr auto; gap:10px; align-items:center;
+    padding:10px 14px; cursor:pointer; border-bottom:1px solid var(--border);
+  }
+  .chat-item:hover{ background:rgba(255,255,255,.03); }
+  .avatar{
+    width:42px; height:42px; border-radius:50%; display:grid; place-items:center;
+    font-weight:700; color:#fff;
+  }
+  .ci-main{ min-width:0; }
+  .ci-name{ font-weight:600; }
+  .ci-last{ color:var(--subtext); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ci-right{ text-align:right; display:grid; gap:6px; }
+  .time{ color:var(--subtext); font-size:12px; }
+  .badge{
+    display:inline-block; min-width:20px; padding:2px 6px;
+    border-radius:999px; background:var(--badge); color:#041e10; font-weight:700; font-size:12px;
+  }
+
+  /* Chat window */
+  .chat{
+    display:grid; grid-template-rows: 60px 1fr auto;
+    background-color: var(--bg);
+  }
+  .chat-top{
+    display:flex; align-items:center; gap:12px; padding:0 16px;
+    border-bottom:1px solid var(--border); background:var(--panel-2);
+  }
+  .messages{
+    padding:16px; overflow:auto; display:flex; flex-direction:column; gap:8px;
+  }
+  .msg{
+    max-width:70%;
+    padding:8px 10px; border-radius:10px;
+    background:var(--them); color:var(--text);
+  }
+  .msg.me{
+    margin-left:auto; background:var(--me); color:#fff;
+  }
+  .meta{
+    display:block; font-size:11px; margin-top:4px; color:rgba(255,255,255,.6);
+  }
+  .msg.me .meta{ color:rgba(0,0,0,.6); }
+  .composer{
+    display:flex; gap:10px; padding:10px; border-top:1px solid var(--border);
+    background:var(--panel-2);
+  }
+  .composer input{
+    flex:1; padding:10px; border-radius:20px; border:none;
+    background:var(--panel); color:var(--text);
+  }
+  .send{
+    background:var(--accent); border:none; border-radius:50%;
+    width:44px; height:44px; color:#fff; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-top">
+      <div class="brand">
+        <div class="logo">C</div>
+        Cheeku Chat
+      </div>
+    </div>
+
+    <div class="search">
+      <input type="text" placeholder="Search or start new chat" />
+    </div>
+
+    <div class="chats">
+      <div class="chat-item">
+        <div class="avatar" style="background:#ff6f61;">C</div>
+        <div class="ci-main">
+          <div class="ci-name">Cheeku</div>
+          <div class="ci-last">Let's meet tomorrow 😊</div>
+        </div>
+        <div class="ci-right">
+          <span class="time">10:45</span>
+          <span class="badge">2</span>
+        </div>
+      </div>
+
+      <div class="chat-item">
+        <div class="avatar" style="background:#6a1b9a;">MD</div>
+        <div class="ci-main">
+          <div class="ci-name">Momma Daddy</div>
+          <div class="ci-last">Dinner's ready 🍲</div>
+        </div>
+        <div class="ci-right">
+          <span class="time">9:30</span>
+        </div>
+      </div>
+
+      <div class="chat-item">
+        <div class="avatar" style="background:#ff9800;">K</div>
+        <div class="ci-main">
+          <div class="ci-name">Kiddo</div>
+          <div class="ci-last">Finished my homework! 📚</div>
+        </div>
+        <div class="ci-right">
+          <span class="time">Yesterday</span>
+        </div>
+      </div>
+
+      <div class="chat-item">
+        <div class="avatar" style="background:#009688;">H</div>
+        <div class="ci-main">
+          <div class="ci-name">Harshu</div>
+          <div class="ci-last">Working on the project 🚀</div>
+        </div>
+        <div class="ci-right">
+          <span class="time">Yesterday</span>
+        </div>
+      </div>
+
+      <div class="chat-item">
+        <div class="avatar" style="background:#3f51b5;">S</div>
+        <div class="ci-main">
+          <div class="ci-name">Starry</div>
+          <div class="ci-last">Clear skies tonight ✨</div>
+        </div>
+        <div class="ci-right">
+          <span class="time">Monday</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Chat window with Cheeku -->
+  <main class="chat">
+    <div class="chat-top">
+      <div class="avatar" style="background:#ff6f61;">C</div>
+      <div>
+        <strong>Cheeku</strong><br>
+        <span style="font-size:12px;color:var(--subtext);">online</span>
+      </div>
+    </div>
+
+    <div class="messages">
+      <div class="msg">Hey Harshu! How’s your day going?<span class="meta">10:40</span></div>
+      <div class="msg me">Pretty good! Just finished my code 😄<span class="meta">10:41</span></div>
+      <div class="msg">Nice! Ready for tomorrow's meetup?<span class="meta">10:42</span></div>
+      <div class="msg me">Yes! Can't wait to see everyone 🎉<span class="meta">10:43</span></div>
+      <div class="msg">Great, let's meet tomorrow 😊<span class="meta">10:45</span></div>
+    </div>
+
+    <div class="composer">
+      <input type="text" placeholder="Type a message" />
+      <button class="send">➤</button>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>
