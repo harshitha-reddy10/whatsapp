@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mini WhatsApp</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background-color: #ece5dd;
+    }
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        max-width: 400px;
+        margin: auto;
+        border: 2px solid #ccc;
+        background-color: #fff;
+    }
+    .header {
+        background-color: #075e54;
+        color: white;
+        padding: 15px;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+    }
+    .messages {
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+        background-color: #ece5dd;
+    }
+    .message {
+        max-width: 70%;
+        margin: 5px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        line-height: 1.4;
+    }
+    .received {
+        background-color: #fff;
+        align-self: flex-start;
+    }
+    .sent {
+        background-color: #dcf8c6;
+        align-self: flex-end;
+    }
+    .input-container {
+        display: flex;
+        border-top: 1px solid #ccc;
+    }
+    input {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        outline: none;
+    }
+    button {
+        background-color: #075e54;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #0b7a68;
+    }
+</style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="header">💬 Cheeku Chat</div>
+    
+    <div class="messages" id="chatBox">
+        <div class="message received"><strong>Momma Daddy:</strong> Good morning beta 💖</div>
+        <div class="message sent"><strong>Harshu:</strong> Good morning mom & dad ☀️</div>
+        <div class="message received"><strong>Cheeku:</strong> Heyy! What's up? 😄</div>
+        <div class="message sent"><strong>Harshu:</strong> Just coding 🖥️</div>
+        <div class="message received"><strong>Kiddo:</strong> Let's play later 🎮</div>
+        <div class="message received"><strong>Starry:</strong> Don't forget the group call at 5 📞</div>
+    </div>
+    
+    <div class="input-container">
+        <input type="text" id="userMessage" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    function sendMessage() {
+        let input = document.getElementById("userMessage");
+        let text = input.value.trim();
+        if (text !== "") {
+            let chatBox = document.getElementById("chatBox");
+            let newMsg = document.createElement("div");
+            newMsg.classList.add("message", "sent");
+            newMsg.innerHTML = "<strong>You:</strong> " + text;
+            chatBox.appendChild(newMsg);
+            input.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }
+</script>
+
+</body>
+</html>
